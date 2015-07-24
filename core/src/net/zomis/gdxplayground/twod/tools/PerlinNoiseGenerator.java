@@ -14,7 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package net.zomis.gdxplayground;
+package net.zomis.gdxplayground.twod.tools;
 
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;

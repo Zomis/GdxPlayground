@@ -1,67 +1,43 @@
 package net.zomis.gdxplayground;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import net.zomis.gdxplayground.twod.Tile;
+import net.zomis.gdxplayground.twod.TileConsumer;
+import net.zomis.gdxplayground.twod.TileMap;
+import net.zomis.gdxplayground.twod.TwoDTile;
+import net.zomis.gdxplayground.twod.tools.FindIslands;
+import net.zomis.gdxplayground.twod.tools.PerlinNoiseGenerator;
 
-public class MapGenScreen implements Screen {
+public class MapGenScreen implements Screen, TileConsumer {
 
     private final GdxPlaygroundGame game;
-    private final Table table;
-    private final Image[][] imgs = new Image[40][40];
+    private final TileMap map;
 
     public MapGenScreen(GdxPlaygroundGame game) {
         this.game = game;
-        this.table = new Table();
-        table.setFillParent(true);
+        this.map = new TileMap(40, 40, this);
 
         MathUtils.random.setSeed(42);
 
-        float[][] map = PerlinNoiseGenerator.generatePerlinNoise(imgs.length, imgs[0].length, 4);
-        int[][] intMap = perlinNoiseToIntMap(map);
+        float[][] floatMap = PerlinNoiseGenerator.generatePerlinNoise(map.getWidth(), map.getHeight(), 4);
+        int[][] intMap = perlinNoiseToIntMap(floatMap);
+        this.setValues(map, intMap);
         postHandle(intMap);
 
-        for (int y = 0; y < imgs.length; y++) {
-            for (int x = 0; x < imgs[y].length; x++) {
-                Image img = new Image();
-                int i = intMap[y][x];
-                img.setDrawable(game.drawables[i]);
-                imgs[y][x] = img;
-                table.add(img);
+    }
+
+    private void setValues(TileMap map, int[][] intMap) {
+        for (int x = 0; x < map.getWidth(); x++) {
+            for (int y = 0; y < map.getHeight(); y++) {
+                map.getTile(x, y).setValue(intMap[y][x]);
             }
-            table.row();
         }
     }
 
     private void postHandle(int[][] intMap) {
-        createIslands(intMap);
-    }
-
-    private void createIslands(int[][] intMap) {
-        for (int y = 0; y < intMap.length; y++) {
-            for (int x = 0; x < intMap[y].length; x++) {
-                int i = intMap[y][x];
-
-            }
-        }
-    }
-
-    private void createIsland(int[][] intMap, int y, int x) {
-        if (y < 0 || y >= intMap.length) {
-            return;
-        }
-        if (x < 0 || x >= intMap[0].length) {
-            return;
-        }
-        if (intMap[y][x] < 0) {
-            return;
-        }
-        intMap[y][x] = - intMap[y][x] - 1;
-        createIsland(intMap, y - 1, x);
-        createIsland(intMap, y + 1, x);
-        createIsland(intMap, y, x - 1);
-        createIsland(intMap, y, x + 1);
+        FindIslands.findIslands();
     }
 
     private int[][] perlinNoiseToIntMap(float[][] map) {
@@ -78,10 +54,10 @@ public class MapGenScreen implements Screen {
         if (v < 0.2f) {
             return 0;
         }
-        if (v < 0.6f) {
+        if (v < 0.5f) {
             return 0;
         }
-        if (v < 0.8f) {
+        if (v < 0.75f) {
             return 1;
         }
         return 1;
@@ -89,7 +65,7 @@ public class MapGenScreen implements Screen {
 
     @Override
     public void show() {
-        game.stage.addActor(table);
+        game.stage.addActor(map.getTable());
     }
 
     @Override
@@ -113,7 +89,7 @@ public class MapGenScreen implements Screen {
 
     @Override
     public void hide() {
-        table.remove();
+        map.getTable().remove();
     }
 
     @Override
@@ -121,4 +97,9 @@ public class MapGenScreen implements Screen {
 
     }
 
+    @Override
+    public void perform(TwoDTile tile) {
+        Tile t = (Tile) tile;
+        t.getImage().setDrawable(game.drawables[t.getValue()]);
+    }
 }
