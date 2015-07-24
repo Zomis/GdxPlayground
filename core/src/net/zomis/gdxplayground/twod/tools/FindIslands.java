@@ -1,21 +1,38 @@
 package net.zomis.gdxplayground.twod.tools;
 
-import net.zomis.gdxplayground.twod.TileCollection;
-import net.zomis.gdxplayground.twod.TwoDMap;
-import net.zomis.gdxplayground.twod.TwoDTile;
+import net.zomis.gdxplayground.twod.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FindIslands {
 
-    public static List<TileCollection> findIslands() {
+    public static List<TileCollection> findIslands(TileMap map) {
         List<TileCollection> result = new ArrayList<TileCollection>();
-        TileCollection.set();
+        for (int y = 0; y < map.getHeight(); y++) {
+            for (int x = 0; x < map.getWidth(); x++) {
+                Tile tile = map.getTile(x, y);
+                boolean exists = existsInAny(tile, result);
+                if (!exists) {
+                    TileCollection collection = TileCollection.set();
+                    result.add(collection);
+                    floodFill(map, collection, tile.getValue(), x, y);
+                }
+            }
+        }
         return result;
     }
 
-    private void floodFill(TwoDMap intMap, TileCollection collection, int x, int y) {
+    private static boolean existsInAny(Tile tile, List<TileCollection> result) {
+        for (TileCollection collection : result) {
+            if (collection.contains(tile)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void floodFill(TwoDMap intMap, TileCollection collection, int value, int x, int y) {
         if (y < 0 || y >= intMap.getHeight()) {
             return;
         }
@@ -23,15 +40,16 @@ public class FindIslands {
             return;
         }
         TwoDTile tile = intMap.getTile(x, y);
-        if (tile.getValue() < 0) {
+        if (tile.getValue() != value) {
             return;
         }
-        tile.setValue(-tile.getValue() - 1);
-        collection.add(tile);
-        floodFill(intMap, collection, x - 1, y);
-        floodFill(intMap, collection, x + 1, y);
-        floodFill(intMap, collection, x, y - 1);
-        floodFill(intMap, collection, x, y + 1);
+        if (!collection.add(tile)) {
+            return;
+        }
+        floodFill(intMap, collection, value, x - 1, y);
+        floodFill(intMap, collection, value, x + 1, y);
+        floodFill(intMap, collection, value, x, y - 1);
+        floodFill(intMap, collection, value, x, y + 1);
 
     }
 

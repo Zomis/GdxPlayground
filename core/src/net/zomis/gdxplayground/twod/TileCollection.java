@@ -89,4 +89,8 @@ public class TileCollection implements Collection<TwoDTile> {
         return tiles.toArray(ts);
     }
 
+    @Override
+    public String toString() {
+        return tiles.toString();
+    }
 }

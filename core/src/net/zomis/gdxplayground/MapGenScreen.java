@@ -3,12 +3,11 @@ package net.zomis.gdxplayground;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.MathUtils;
-import net.zomis.gdxplayground.twod.Tile;
-import net.zomis.gdxplayground.twod.TileConsumer;
-import net.zomis.gdxplayground.twod.TileMap;
-import net.zomis.gdxplayground.twod.TwoDTile;
+import net.zomis.gdxplayground.twod.*;
 import net.zomis.gdxplayground.twod.tools.FindIslands;
 import net.zomis.gdxplayground.twod.tools.PerlinNoiseGenerator;
+
+import java.util.List;
 
 public class MapGenScreen implements Screen, TileConsumer {
 
@@ -24,7 +23,7 @@ public class MapGenScreen implements Screen, TileConsumer {
         float[][] floatMap = PerlinNoiseGenerator.generatePerlinNoise(map.getWidth(), map.getHeight(), 4);
         int[][] intMap = perlinNoiseToIntMap(floatMap);
         this.setValues(map, intMap);
-        postHandle(intMap);
+        postHandle();
 
     }
 
@@ -36,8 +35,19 @@ public class MapGenScreen implements Screen, TileConsumer {
         }
     }
 
-    private void postHandle(int[][] intMap) {
-        FindIslands.findIslands();
+    private void postHandle() {
+        List<TileCollection> islands = FindIslands.findIslands(map);
+        for (TileCollection collection : islands) {
+            if (collection.size() < 10) {
+                collection.withCollection(new TileConsumer() {
+                    @Override
+                    public void perform(TwoDTile tile) {
+                        Gdx.app.log(tile.toString(), tile.toString());
+                        tile.setValue(1 - tile.getValue());
+                    }
+                });
+            }
+        }
     }
 
     private int[][] perlinNoiseToIntMap(float[][] map) {

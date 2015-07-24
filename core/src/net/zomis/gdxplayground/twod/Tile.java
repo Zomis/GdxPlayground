@@ -1,6 +1,5 @@
 package net.zomis.gdxplayground.twod;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 public class Tile implements TwoDTile {
