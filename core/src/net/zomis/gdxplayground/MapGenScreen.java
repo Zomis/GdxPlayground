@@ -2,7 +2,6 @@ package net.zomis.gdxplayground;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.math.MathUtils;
 import net.zomis.gdxplayground.twod.*;
 import net.zomis.gdxplayground.twod.tools.FindIslands;
 import net.zomis.gdxplayground.twod.tools.PerlinNoiseGenerator;
@@ -18,7 +17,7 @@ public class MapGenScreen implements Screen, TileConsumer {
         this.game = game;
         this.map = new TileMap(40, 40, this);
 
-        MathUtils.random.setSeed(42);
+//        MathUtils.random.setSeed(42);
 
         float[][] floatMap = PerlinNoiseGenerator.generatePerlinNoise(map.getWidth(), map.getHeight(), 4);
         int[][] intMap = perlinNoiseToIntMap(floatMap);
@@ -39,10 +38,10 @@ public class MapGenScreen implements Screen, TileConsumer {
         List<TileCollection> islands = FindIslands.findIslands(map);
         for (TileCollection collection : islands) {
             if (collection.size() < 10) {
+                Gdx.app.log("Post", "Collection transform: " + collection);
                 collection.withCollection(new TileConsumer() {
                     @Override
                     public void perform(TwoDTile tile) {
-                        Gdx.app.log(tile.toString(), tile.toString());
                         tile.setValue(1 - tile.getValue());
                     }
                 });

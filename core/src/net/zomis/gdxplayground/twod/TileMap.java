@@ -36,10 +36,6 @@ public class TileMap implements TwoDMap {
         return width;
     }
 
-    public Tile[][] getTiles() {
-        return tiles;
-    }
-
     @Override
     public Tile getTile(int x, int y) {
         return tiles[y][x];
